@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teoria de algoritmos</title>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+        .sidebar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-right: 2px solid #34495e;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar li { margin: 15px 0; }
+        .sidebar a { color: #ecf0f1; text-decoration: none; font-size: 1.1em; display: block; padding: 10px; border-radius: 5px; }
+        .sidebar a:hover, .sidebar a.active { background-color: #34495e; color: #3498db; font-weight: bold; }
+        .content {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px; 
+            overflow-y: auto; 
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #e74c3c; 
+            padding-bottom: 15px;
+        }
+
+        .logo-top { width: 100px; height: auto; }
+        .titulo-rojo { color: #e74c3c; margin: 0; }
+
+        /* USUARIO */
+        .user-info h3 { color: #2c3e50; margin-top: 0; }
+        .slider-wrapper {
+        width: 100%;
+        max-width: 800px;
+        height: 400px; 
+        border: 2px solid #333;
+        align-self: center;
+        overflow: hidden;
+        position: relative;
+        background-color: #eee;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        }
+
+        #imagen-rotativa {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+            transition: opacity 0.5s ease-in-out;
+        }
+        .description {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #555;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+        }
+    </style>
+    </head>
+<body>
+
+    <nav class="sidebar">
+        <h2>Menú</h2>
+        <ul>
+            <li><a href="index.html" class="active">Página Principal</a></li>
+            <li><a href="Principal.html">Grafos</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        
+        <header class="main-header">
+            <div style="text-align:center">
+            <h1 class="titulo-rojo">Analisis de algoritmos</h1>
+            </div>
+            <img src="escudo-ucb.png" alt="Logo" class="logo-top">
+        </header>
+
+        <section class="user-info">
+            <h3>Sergio Trigo</h3>
+        </section>
+
+        <section class="slider-wrapper">
+            <a id="link-rotativo" href="#" target="_blank">
+                <img id="imagen-rotativa" src="" alt="Cargando...">
+            </a>
+        </section>
+
+        <section class="description">
+            <h1>Algoritmos</h1>
+            <p>Para el analisis de algoritmo se buscan 3 cosas importantes que sea preciso, determinista y finito.
+                Esto es porque debe averiguarse si los algoritmos son o no eficaces para su funcion, esto dependera por las entradas y las salidas del mismo.
+            </p>
+            <p> Este ambito se calcula mediante medidas asintomaticas que son para ver que tan rápido crece el tiempo de ejecucion esto quiere decir
+                si tardara mucho o poco tiempo el algoritmo, esto se  basa en 3 notaciones.
+            Para la elección de algoritmos de debe considerar los siguientes factores:</p>
+            <p> <span style="color: #000000;"> Complejidad temporal:</span> Tiempo que tarda el algoritmo en ejecutarse</p>
+            <p> <span style="color: #000000;"> Complejidad espacial:</span> Cantidad de memoria que se usa para completar</p>
+            <p> <span style="color: #000000;"> Complejidad del mejor caso:</span> Cantidad minima de recursos usados para completarse</p>
+            <p> <span style="color: #000000;"> Complejidad del peor caso:</span> La maxima cantidad de recursos que se usaran</p>
+            <p> <span style="color: #000000;"> Complejodad promedio</span> La cantidad promedia de recursos que se usaran</p>
+            <h2>Medicion del algoritmo</h2>
+            <p> Estos se pueden analizar y probar de 2 formas:</p>
+            <p> <span style="color: #000000;"> Analisis empírico:</span> Se prueba a solo ejecución de la aplicación</p>
+            <p> <span style="color: #000000;"> Analisis analítico:</span> Se analisa en base al analisis del algoritmo</p>
+
+
+        </section>
+
+       
+
+    </main>
+
+    <script>
+        const diapositivas = [
+            { img: "caratula.png"},
+            { img: "Teoria.png", link: 'https://es.slideshare.net/slideshow/unidad-7-analisis-de-los-algoritmos/15642817' },
+            { img: 'Libro.png', link: 'http://ilitia.cua.uam.mx:8080/jspui/bitstream/123456789/985/1/Introducción%20al%20análisis%20y%20al%20diseño%20de%20algoritmos.pdf' },
+            { img: 'Paginaweb.png', link: 'https://chebil-github-io.translate.goog/DataStructure/chap1?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=tc' }
+        ];
+
+        let indice = 0;
+        const elImg = document.getElementById('imagen-rotativa');
+        const elLink = document.getElementById('link-rotativo');
+
+        function rotar() {
+            elImg.style.opacity = 0;
+            
+            setTimeout(() => {
+                elImg.src = diapositivas[indice].img;
+                elLink.href = diapositivas[indice].link;
+                elImg.style.opacity = 1;
+                indice = (indice + 1) % diapositivas.length;
+            }, 500);
+        }
+
+        setInterval(rotar, 3500); 
+        rotar();
+    </script>
+</body>
+</html>
