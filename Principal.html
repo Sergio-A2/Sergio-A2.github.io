@@ -41,7 +41,7 @@
             position: relative;
             width: 100%;
             height: 100%; 
-            min-height: 500px;
+            overflow: hidden;
         }
         #controls {
             background-color: #f8f9fa;
@@ -116,7 +116,18 @@
             background-color: #f39c12;
             color: white;
         }
-        /* ========================================= */
+        /* Ventana Flotante para la Matriz */
+#modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 999;
+}
+#matrix-modal {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: white; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000; max-width: 80%; max-height: 80vh; overflow: auto;
+}
+.close-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; float: right; border-radius: 3px; }
+
     </style>
 </head>
 <body>
@@ -140,6 +151,11 @@
                 <label>Nombre:</label>
                 <input type="text" id="node-label" placeholder="Ej: A">
                 <button onclick="addNode()">Crear Nodo</button>
+                    <h3 style="margin-top: 30px;">Herramientas</h3>
+    <button onclick="eliminarSeleccion()" style="background-color: #e74c3c; width: 100%;">Eliminar Selección (Supr)</button>
+    <button onclick="guardarProgreso()" style="background-color: #f39c12; width: 100%;">Guardar Progreso</button>
+    <button onclick="cargarProgreso()" style="background-color: #34495e; width: 100%;">Cargar Progreso</button>
+
             </div>
 
             <h3>Agregar Arista</h3>
@@ -160,7 +176,7 @@
              <h3>Análisis</h3>
             <button class="matrix-btn" onclick="generateMatrix()" style="background-color: #27ae60; width: 100%;">Generar Matriz</button>
             
-            <div id="matrix-output"></div>
+            
         </div>
        
         </div>
@@ -261,8 +277,53 @@
             html += `<td class="sum-cell" style="background:#f39c12; color:white;">${totalSum}</td></tr></tbody></table>`;
             
             matrixContainer.innerHTML = html;
+                // (Pon esto justo debajo de: matrixContainer.innerHTML = html;)
+    document.getElementById('matrix-modal').style.display = 'block';
+    document.getElementById('modal-overlay').style.display = 'block';
+}
+
+function cerrarMatriz() {
+    document.getElementById('matrix-modal').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
+}
+
         }
-        
+        // --- FUNCIÓN PARA ELIMINAR NODOS O ARISTAS ---
+function eliminarSeleccion() {
+    const selection = network.getSelection();
+    if (selection.nodes.length > 0 || selection.edges.length > 0) {
+        nodes.remove(selection.nodes); // Elimina nodos (y sus aristas conectadas automáticamente)
+        edges.remove(selection.edges); // Elimina aristas sueltas
+    } else {
+        alert("Haz clic en un nodo o flecha para seleccionarlo primero.");
+    }
+}
+
+// Permite borrar presionando la tecla "Suprimir" o "Delete" de tu teclado
+document.addEventListener('keydown', function(event) {
+    if (event.key === "Delete") eliminarSeleccion();
+});
+
+// --- FUNCIONES PARA GUARDAR Y CARGAR ---
+function guardarProgreso() {
+    // Convierte el grafo a texto y lo guarda en el navegador
+    localStorage.setItem('grafos_nodos', JSON.stringify(nodes.get()));
+    localStorage.setItem('grafos_aristas', JSON.stringify(edges.get()));
+    alert("¡Diseño guardado correctamente!");
+}
+
+function cargarProgreso() {
+    const datosNodos = JSON.parse(localStorage.getItem('grafos_nodos'));
+    const datosAristas = JSON.parse(localStorage.getItem('grafos_aristas'));
+    
+    if (datosNodos && datosAristas) {
+        nodes.clear(); edges.clear(); // Limpia el lienzo
+        nodes.add(datosNodos); edges.add(datosAristas); // Dibuja lo guardado
+    } else {
+        alert("No hay ningún progreso guardado.");
+    }
+}
+
     </script>
 </body>
 </html>
