@@ -291,20 +291,22 @@
         }
 
         
-        function generateMatrix() {
+                function generateMatrix() {
             const nodeList = nodes.getIds();
             const edgeList = edges.get();
             const matrixContainer = document.getElementById('matrix-output');
             
             if (nodeList.length === 0) return matrixContainer.innerHTML = "<p style='padding: 10px; color: #555;'>No hay nodos creados.</p>";
 
+            // --- 1. CABECERAS ---
             let html = '<table><thead><tr><th></th>';
             nodeList.forEach(id => html += `<th>${id}</th>`);
-            html += '<th class="sum-cell">Σ</th></tr></thead><tbody>';
+            html += '<th class="sum-cell">Σ (Peso)</th><th style="background:#3498db; color:white; font-weight:bold;">Nº Conex</th></tr></thead><tbody>';
 
             let colSums = new Array(nodeList.length).fill(0);
-            let totalSum = 0;
             let colCounts = new Array(nodeList.length).fill(0);
+            let totalSum = 0;
+
             let maxRowSum = 0, maxColSum = 0;
             let maxRowCount = 0, maxColCount = 0;
 
@@ -322,24 +324,33 @@
                     html += `<td>${val}</td>`;  
                     rowSum += val;
                     colSums[j] += val;
+                    
                     if (val !== 0) {
                         rowCount++;
                         colCounts[j]++;
                     }
                 });
+                
                 if (rowSum > maxRowSum) maxRowSum = rowSum;
                 if (rowCount > maxRowCount) maxRowCount = rowCount;
-
-                html += `<td class="sum-cell">${rowSum}</td></tr>`;
+                html += `<td class="sum-cell">${rowSum}</td>`;
+                html += `<td style="background:#e8f4f8; color:#2980b9; font-weight:bold;">${rowCount}</td></tr>`;
+                
                 totalSum += rowSum;
             });
-            html += '<tr><th class="sum-cell">Σ</th>';
+            html += '<tr><th class="sum-cell">Σ (Peso)</th>';
             colSums.forEach((sum, j) => {
                 html += `<td class="sum-cell">${sum}</td>`;
                 if (sum > maxColSum) maxColSum = sum;
-                if (colCounts[j] > maxColCount) maxColCount = colCounts[j];
             });
-            html += `<td class="sum-cell" style="background:#f39c12; color:white;">${totalSum}</td></tr></tbody></table>`;
+            html += `<td class="sum-cell" style="background:#f39c12; color:white;">${totalSum}</td><td style="background:#ecf0f1;"></td></tr>`;
+            html += '<tr><th style="background:#3498db; color:white;">Nº Conex</th>';
+            colCounts.forEach((count, j) => {
+                html += `<td style="background:#e8f4f8; color:#2980b9; font-weight:bold;">${count}</td>`;
+                if (count > maxColCount) maxColCount = count;
+            });
+            html += `<td style="background:#ecf0f1;"></td><td style="background:#ecf0f1;"></td></tr></tbody></table>`;
+
             html += `
             <div style="margin-top: 15px; padding-top: 10px; border-top: 2px solid #eee; text-align: left; font-size: 0.95em; color: #2c3e50; line-height: 1.6;">
                 <div><b>Máximo Suma Fila:</b> ${maxRowSum}</div>
@@ -352,6 +363,7 @@
             document.getElementById('matrix-modal').style.display = 'block';
             document.getElementById('modal-overlay').style.display = 'block';
         }
+
 
 function abrirAyuda() {
     document.getElementById('help-modal').style.display = 'block';
