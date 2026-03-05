@@ -172,9 +172,11 @@
                 <input type="text" id="node-label" placeholder="Ej: A">
                 <button onclick="addNode()">Crear Nodo</button>
                     <h3 style="margin-top: 30px;">Herramientas</h3>
-    <button onclick="eliminarSeleccion()" style="background-color: #e74c3c; width: 100%;">Eliminar Selección</button>
+        <button onclick="eliminarSeleccion()" style="background-color: #e74c3c; width: 100%;">Eliminar Selección (Supr)</button>
     <button onclick="guardarProgreso()" style="background-color: #f39c12; width: 100%;">Guardar Progreso</button>
     <button onclick="cargarProgreso()" style="background-color: #34495e; width: 100%;">Cargar Progreso</button>
+    
+    <input type="file" id="file-input" accept=".json" style="display: none;" onchange="leerArchivo(event)">
     <button onclick="abrirAyuda()" style="background-color: #7f8c8d; width: 100%; padding: 6px; margin-top: 20px; font-size: 0.8em; border-radius: 4px;">❔ Ayuda</button>
             </div>
 
@@ -372,22 +374,55 @@ document.addEventListener('keydown', function(event) {
 });
 
 function guardarProgreso() {
-    localStorage.setItem('grafos_nodos', JSON.stringify(nodes.get()));
-    localStorage.setItem('grafos_aristas', JSON.stringify(edges.get()));
-    alert("¡Diseño guardado correctamente!");
+    const data = {
+        nodos: nodes.get(),
+        aristas: edges.get()
+    };
+    
+    const jsonStr = JSON.stringify(data, null, 2);
+    
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "mi_grafo.json"; 
+    document.body.appendChild(a);
+    a.click();
+    
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 function cargarProgreso() {
-    const datosNodos = JSON.parse(localStorage.getItem('grafos_nodos'));
-    const datosAristas = JSON.parse(localStorage.getItem('grafos_aristas'));
-    
-    if (datosNodos && datosAristas) {
-        nodes.clear(); edges.clear(); 
-        nodes.add(datosNodos); edges.add(datosAristas); 
-    } else {
-        alert("No hay ningún progreso guardado.");
-    }
+    document.getElementById('file-input').click();
 }
+
+function leerArchivo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            
+            const contenido = JSON.parse(e.target.result);
+            if (contenido.nodos && contenido.aristas) {
+                nodes.clear(); edges.clear(); 
+                nodes.add(contenido.nodos);   
+                edges.add(contenido.aristas); 
+            } else {
+                alert("El archivo no tiene el formato correcto para este editor.");
+            }
+        } catch (error) {
+            alert("Error al leer el archivo. Asegúrate de que sea el .json correcto.");
+        }
+        
+        event.target.value = ""; 
+    };
+    reader.readAsText(file);
+}
+
 
     </script>
 </body>
