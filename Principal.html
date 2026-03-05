@@ -7,7 +7,9 @@
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+
     <style>
+        /* estilos*/
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -25,15 +27,14 @@
             flex-direction: column;
 
         }
-        /* Estilos para la firma al final del menú */
         .sidebar-footer {
-            margin-top: auto; /* Esto es la magia que lo empuja hasta abajo */
+            margin-top: auto; 
             text-align: center;
             font-size: 0.9em;
-            color: #bdc3c7; /* Gris claro para que resalte en el fondo azul oscuro */
+            color: #bdc3c7; 
             line-height: 1.6;
             padding-top: 15px;
-            border-top: 1px solid #34495e; /* Una línea sutil para separarlo */
+            border-top: 1px solid #34495e; 
         }
         .sidebar h2 { color: #ecf0f1; margin-top: 0; }
         .sidebar ul { list-style: none; padding: 0; }
@@ -44,7 +45,7 @@
             display: grid;
             grid-template-columns: 1fr 300px; 
             height: 100%;
-            min-height: 0; /* <-- LA MAGIA: Detiene el bucle de crecimiento infinito */
+            min-height: 0; 
         }
         
         #network-container {
@@ -96,38 +97,32 @@
             padding: 10px 5px;
         }
 
-        /* Estilo de la cabecera principal */
         thead th {
             background-color: #2c3e50;
             color: white;
             font-weight: bold;
         }
 
-        /* Color intercalado para las filas */
         tbody tr:nth-child(even) { background-color: #f9f9f9; }
-        
-        /* Efecto al pasar el mouse sobre una fila */
+
         tbody tr:hover { background-color: #e8f4f8; }
 
-        /* Celdas de cabecera lateral (Nombres de nodos) */
         tbody th {
             background-color: #ecf0f1;
             color: #2c3e50;
         }
 
-        /* Estilos específicos para las celdas de sumatoria */
         .sum-cell {
-            background-color: #fcf3cf; /* Amarillo suave */
+            background-color: #fcf3cf; 
             font-weight: bold;
             color: #d35400;
         }
-        
-        /* Cabecera específica de sumatoria */
+
         thead th.sum-cell {
             background-color: #f39c12;
             color: white;
         }
-        /* Ventana Flotante para la Matriz */
+
 #modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5); z-index: 999;
@@ -225,8 +220,7 @@
         </ul>
     </div>
     <script>
-        
-        // CÓDIGO JS INTACTO
+        /* Funciones*/
         const nodes = new vis.DataSet([])
         const edges = new vis.DataSet([]);
         const container = document.getElementById('network-container');
@@ -250,11 +244,8 @@
         const network = new vis.Network(container, data, options);
         
         function addNode() {
-            // Se guarda exactamente como el usuario lo escribe
             const label = document.getElementById('node-label').value.trim();
             if (!label) return alert("Caracter del nodo");
-            
-            // Verificamos si ya existe ignorando mayúsculas/minúsculas para evitar duplicados
             const todosLosNodos = nodes.get();
             const yaExiste = todosLosNodos.some(n => n.id.toLowerCase() === label.toLowerCase());
             
@@ -275,8 +266,6 @@
             const toInput = document.getElementById('edge-to').value.trim();
             const weight = document.getElementById('edge-weight').value;
             const type = document.getElementById('edge-type').value;
-
-            // Buscamos los IDs reales en la base de datos de nodos, ignorando mayúsculas/minúsculas
             let realFrom = null;
             let realTo = null;
             
@@ -285,11 +274,7 @@
                 if (n.id.toLowerCase() === fromInput.toLowerCase()) realFrom = n.id;
                 if (n.id.toLowerCase() === toInput.toLowerCase()) realTo = n.id;
             });
-
-            // Si el sistema no logró encontrar la equivalencia, lanza error
             if (!realFrom || !realTo) return alert("Uno o ambos nodos no existen");
-
-            // Si los encuentra, usa el ID real exacto (respetando la mayúscula/minúscula original)
             edges.add({
                 from: realFrom,
                 to: realTo,
@@ -312,58 +297,42 @@
 
             let colSums = new Array(nodeList.length).fill(0);
             let totalSum = 0;
-
-            // --- NUEVAS VARIABLES MATEMÁTICAS ---
             let colCounts = new Array(nodeList.length).fill(0);
             let maxRowSum = 0, maxColSum = 0;
             let maxRowCount = 0, maxColCount = 0;
-            // ------------------------------------
 
             nodeList.forEach((rowId, i) => {
                 html += `<tr><th>${rowId}</th>`;
                 let rowSum = 0;
-                let rowCount = 0; // Para contar cuántas conexiones tiene la fila
+                let rowCount = 0; 
                 
                 nodeList.forEach((colId, j) => {
-                    // Buscar conexión (dirigida o no)
                     let connection = edgeList.find(e => 
                         (e.from === rowId && e.to === colId) || 
                         (e.arrows !== 'to' && e.from === colId && e.to === rowId)
-                    );
-                    
+                    );                   
                     let val = connection ? parseInt(connection.label || 1) : 0;
-                    html += `<td>${val}</td>`;
-                    
+                    html += `<td>${val}</td>`;  
                     rowSum += val;
                     colSums[j] += val;
-
-                    // Lógica para contar conexiones válidas
                     if (val !== 0) {
                         rowCount++;
                         colCounts[j]++;
                     }
                 });
-                
-                // --- ACTUALIZAR MÁXIMOS DE LA FILA ---
                 if (rowSum > maxRowSum) maxRowSum = rowSum;
                 if (rowCount > maxRowCount) maxRowCount = rowCount;
 
                 html += `<td class="sum-cell">${rowSum}</td></tr>`;
                 totalSum += rowSum;
             });
-
-            // Fila de Sumas
             html += '<tr><th class="sum-cell">Σ</th>';
             colSums.forEach((sum, j) => {
                 html += `<td class="sum-cell">${sum}</td>`;
-                
-                // --- ACTUALIZAR MÁXIMOS DE LA COLUMNA ---
                 if (sum > maxColSum) maxColSum = sum;
                 if (colCounts[j] > maxColCount) maxColCount = colCounts[j];
             });
             html += `<td class="sum-cell" style="background:#f39c12; color:white;">${totalSum}</td></tr></tbody></table>`;
-            
-            // --- AÑADIR LOS DATOS EXTRAS AL FINAL DEL RECUADRO ---
             html += `
             <div style="margin-top: 15px; padding-top: 10px; border-top: 2px solid #eee; text-align: left; font-size: 0.95em; color: #2c3e50; line-height: 1.6;">
                 <div><b>Máximo Suma Fila:</b> ${maxRowSum}</div>
@@ -373,8 +342,6 @@
             </div>`;
 
             matrixContainer.innerHTML = html;
-
-            // Abrir la ventana flotante (Como ya lo tenías configurado)
             document.getElementById('matrix-modal').style.display = 'block';
             document.getElementById('modal-overlay').style.display = 'block';
         }
@@ -384,33 +351,27 @@ function abrirAyuda() {
     document.getElementById('modal-overlay').style.display = 'block';
 }
 
-// Función general para cerrar CUALQUIER ventana flotante
 function cerrarModales() {
     document.getElementById('matrix-modal').style.display = 'none';
     document.getElementById('help-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
-        
-        // --- FUNCIÓN PARA ELIMINAR NODOS O ARISTAS ---
 function eliminarSeleccion() {
     const selection = network.getSelection();
     if (selection.nodes.length > 0 || selection.edges.length > 0) {
-        nodes.remove(selection.nodes); // Elimina nodos (y sus aristas conectadas automáticamente)
-        edges.remove(selection.edges); // Elimina aristas sueltas
+        nodes.remove(selection.nodes); 
+        edges.remove(selection.edges); 
     } else {
         alert("Haz clic en un nodo o flecha para seleccionarlo primero.");
     }
 }
 
-// Permite borrar presionando la tecla "Suprimir" o "Delete" de tu teclado
 document.addEventListener('keydown', function(event) {
     if (event.key === "Delete") eliminarSeleccion();
 });
 
-// --- FUNCIONES PARA GUARDAR Y CARGAR ---
 function guardarProgreso() {
-    // Convierte el grafo a texto y lo guarda en el navegador
     localStorage.setItem('grafos_nodos', JSON.stringify(nodes.get()));
     localStorage.setItem('grafos_aristas', JSON.stringify(edges.get()));
     alert("¡Diseño guardado correctamente!");
@@ -421,8 +382,8 @@ function cargarProgreso() {
     const datosAristas = JSON.parse(localStorage.getItem('grafos_aristas'));
     
     if (datosNodos && datosAristas) {
-        nodes.clear(); edges.clear(); // Limpia el lienzo
-        nodes.add(datosNodos); edges.add(datosAristas); // Dibuja lo guardado
+        nodes.clear(); edges.clear(); 
+        nodes.add(datosNodos); edges.add(datosAristas); 
     } else {
         alert("No hay ningún progreso guardado.");
     }
