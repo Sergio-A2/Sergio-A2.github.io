@@ -156,7 +156,7 @@
         
         <div class="sidebar-footer">
             Sergio Trigo<br>
-            gmail: sergio.trigo.m@ucb.edu.bo<br>
+            sergio.trigo.m@ucb.edu.bo<br>
             Telf: 62344037
         </div>
         </nav>
@@ -172,7 +172,7 @@
                 <input type="text" id="node-label" placeholder="Ej: A">
                 <button onclick="addNode()">Crear Nodo</button>
                     <h3 style="margin-top: 30px;">Herramientas</h3>
-        <button onclick="eliminarSeleccion()" style="background-color: #e74c3c; width: 100%;">Eliminar Selección (Supr)</button>
+        <button onclick="eliminarSeleccion()" style="background-color: #e74c3c; width: 100%;">Eliminar Selección</button>
     <button onclick="guardarProgreso()" style="background-color: #f39c12; width: 100%;">Guardar Progreso</button>
     <button onclick="cargarProgreso()" style="background-color: #34495e; width: 100%;">Cargar Progreso</button>
     
@@ -186,8 +186,8 @@
                 <input type="text" id="edge-from" placeholder="Nodo origen">
                 <label>Destino (ID):</label>
                 <input type="text" id="edge-to" placeholder="Nodo destino">
-                <label>Peso:</label>
-                <input type="number" id="edge-weight" value="1" min="1">
+                                <label>Peso:</label>
+                <input type="number" id="edge-weight" value="1" min="1" onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
                 <label>Tipo:</label>
                 <select id="edge-type">
                     <option value="directed">Dirigida (->)</option>
@@ -217,8 +217,8 @@
             <li><b>Conectar:</b> Escribe el ID de origen, el de destino y el peso para trazar una línea entre dos nodos.</li>
             <li><b>Generar Matriz:</b> Crea una tabla matemática automática que muestra las conexiones actuales de tu grafo.</li>
             <li><b>Eliminar Selección:</b> Haz clic en cualquier nodo o flecha y presiona este botón para borrarlo.</li>
-            <li><b>Guardar Progreso:</b> Guarda tu diseño actual en el navegador para no perderlo.</li>
-            <li><b>Cargar Progreso:</b> Recupera el último diseño que guardaste.</li>
+            <li><b>Guardar Progreso:</b> Guarda tu diseño actual en un archivo .json.</li>
+            <li><b>Cargar Progreso:</b> Importa un archivo creado por "Guardar Progreso".</li>
         </ul>
     </div>
     <script>
@@ -263,11 +263,15 @@
             }
         }
 
-        function addEdge() {
+                function addEdge() {
             const fromInput = document.getElementById('edge-from').value.trim();
             const toInput = document.getElementById('edge-to').value.trim();
-            const weight = document.getElementById('edge-weight').value;
+            const weightValue = document.getElementById('edge-weight').value.trim();
             const type = document.getElementById('edge-type').value;
+
+            if (!/^\d+$/.test(weightValue) || parseInt(weightValue) <= 0) {
+                return alert("El peso debe ser un número entero válido mayor a cero (sin letras, signos ni decimales).");
+            }
             let realFrom = null;
             let realTo = null;
             
@@ -277,14 +281,16 @@
                 if (n.id.toLowerCase() === toInput.toLowerCase()) realTo = n.id;
             });
             if (!realFrom || !realTo) return alert("Uno o ambos nodos no existen");
+
             edges.add({
                 from: realFrom,
                 to: realTo,
-                label: weight,
+                label: weightValue, 
                 arrows: type === 'directed' ? 'to' : '',
-                weight: parseInt(weight)
+                weight: parseInt(weightValue)
             });
         }
+
         
         function generateMatrix() {
             const nodeList = nodes.getIds();
