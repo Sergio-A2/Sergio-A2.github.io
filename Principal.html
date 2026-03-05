@@ -226,13 +226,13 @@
         const edges = new vis.DataSet([]);
         const container = document.getElementById('network-container');
         
-        const data = { nodes: nodes, edges: edges };
-                const options = {
+                const data = { nodes: nodes, edges: edges };
+        
+        const options = {
             physics: { enabled: false, solver: 'forceAtlas2Based' },
             edges: { 
                 font: { align: 'top', size: 12 }, 
                 color: { color: '#2c3e50', highlight: '#3498db' },
-                
                 smooth: { 
                     enabled: true,
                     type: 'curvedCW', 
@@ -241,6 +241,14 @@
             },
             nodes: { 
                 color: { background: '#ecf0f1', border: '#2c3e50', highlight: '#3498db' },
+                font: { size: 16, face: 'Arial' },
+                shape: 'ellipse'
+            },
+            interaction: { hover: true }
+        };
+
+        const network = new vis.Network(container, data, options);
+
 
 
         const network = new vis.Network(container, data, options);
