@@ -232,7 +232,13 @@
             edges: { 
                 font: { align: 'top', size: 12 }, 
                 color: { color: '#2c3e50', highlight: '#3498db' },
-                smooth: { type: 'dynamic' }
+                
+                // --- ESTO CREA LA CURVA SEPARADA DE TU DIBUJO ---
+                smooth: { 
+                    enabled: true,
+                    type: 'curvedCW', // Curva hacia la derecha (sentido del reloj)
+                    roundness: 0.25   // Valor ajustado (0.25) para que la separación sea clara y elegante
+                }
             },
             nodes: { 
                 color: { background: '#ecf0f1', border: '#2c3e50', highlight: '#3498db' },
@@ -268,9 +274,12 @@
             const weightValue = document.getElementById('edge-weight').value.trim();
             const type = document.getElementById('edge-type').value;
 
+            // Validación matemática estricta
             if (!/^\d+$/.test(weightValue) || parseInt(weightValue) <= 0) {
                 return alert("El peso debe ser un número entero válido mayor a cero (sin letras, signos ni decimales).");
             }
+            
+            // Búsqueda de los IDs reales (ignorando mayúsculas/minúsculas)
             let realFrom = null;
             let realTo = null;
             
@@ -279,15 +288,34 @@
                 if (n.id.toLowerCase() === fromInput.toLowerCase()) realFrom = n.id;
                 if (n.id.toLowerCase() === toInput.toLowerCase()) realTo = n.id;
             });
+            
             if (!realFrom || !realTo) return alert("Uno o ambos nodos no existen");
 
-            edges.add({
-                from: realFrom,
-                to: realTo,
-                label: weightValue, 
-                arrows: type === 'directed' ? 'to' : '',
-                weight: parseInt(weightValue)
-            });
+            // --- NUEVA LÓGICA: EVITAR SUPERPOSICIÓN Y ACTUALIZAR PESO ---
+            const aristasExistentes = edges.get();
+            
+            // Buscamos si ya existe una conexión exacta entre este origen y este destino
+            let aristaEncontrada = aristasExistentes.find(e => e.from === realFrom && e.to === realTo);
+
+            if (aristaEncontrada) {
+                // Si la conexión ya existe, NO creamos una nueva. 
+                // Usamos edges.update() para cambiar solo el número y el tipo de flecha.
+                edges.update({
+                    id: aristaEncontrada.id,
+                    label: weightValue,
+                    weight: parseInt(weightValue),
+                    arrows: type === 'directed' ? 'to' : ''
+                });
+            } else {
+                // Si la conexión no existe, entonces sí creamos una nueva línea
+                edges.add({
+                    from: realFrom,
+                    to: realTo,
+                    label: weightValue, 
+                    arrows: type === 'directed' ? 'to' : '',
+                    weight: parseInt(weightValue)
+                });
+            }
         }
 
         
@@ -351,13 +379,7 @@
             });
             html += `<td style="background:#ecf0f1;"></td><td style="background:#ecf0f1;"></td></tr></tbody></table>`;
 
-            html += `
-            <div style="margin-top: 15px; padding-top: 10px; border-top: 2px solid #eee; text-align: left; font-size: 0.95em; color: #2c3e50; line-height: 1.6;">
-                <div><b>Máximo Suma Fila:</b> ${maxRowSum}</div>
-                <div><b>Máximo Suma Columna:</b> ${maxColSum}</div>
-                <div><b>Máximo Count Fila:</b> ${maxRowCount}</div>
-                <div><b>Máximo Count Columna:</b> ${maxColCount}</div>
-            </div>`;
+            
 
             matrixContainer.innerHTML = html;
             document.getElementById('matrix-modal').style.display = 'block';
