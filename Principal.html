@@ -412,26 +412,48 @@ document.addEventListener('keydown', function(event) {
     if (event.key === "Delete") eliminarSeleccion();
 });
 
+// Variable global que actuará como la "memoria" del último nombre usado
+let ultimoNombreArchivo = "mi_grafo";
+
 function guardarProgreso() {
+    // 1. Pedimos el nombre mostrando el último usado como sugerencia
+    let nombreArchivo = prompt("Ingresa un nombre para guardar tu grafo:", ultimoNombreArchivo);
+
+    // 2. Si el usuario presiona "Cancelar" o deja el texto vacío, cancelamos el guardado
+    if (nombreArchivo === null || nombreArchivo.trim() === "") {
+        return; 
+    }
+
+    // 3. Limpiamos espacios extra y actualizamos la memoria para la próxima vez
+    nombreArchivo = nombreArchivo.trim();
+    ultimoNombreArchivo = nombreArchivo;
+
+    // 4. Revisamos si el usuario le puso ".json". Si no lo hizo, se lo agregamos automáticamente
+    let nombreFinal = nombreArchivo;
+    if (!nombreFinal.toLowerCase().endsWith('.json')) {
+        nombreFinal += '.json';
+    }
+
+    // 5. Empaquetamos y descargamos (Tu código original)
     const data = {
         nodos: nodes.get(),
         aristas: edges.get()
     };
     
     const jsonStr = JSON.stringify(data, null, 2);
-    
     const blob = new Blob([jsonStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = "mi_grafo.json"; 
+    a.download = nombreFinal; // Usamos el nombre personalizado
     document.body.appendChild(a);
     a.click();
     
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+
 
 function cargarProgreso() {
     document.getElementById('file-input').click();
